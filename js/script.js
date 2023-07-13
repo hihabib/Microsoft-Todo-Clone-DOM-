@@ -8,39 +8,30 @@ const TASK_COLLECTION_NAME = "tasks";
 
 const html = String.raw;
 
+const createCompleteTask = (taskName) => {
+  //create Task
+  const completedTask = document.createElement("div");
+
+  completedTask.innerHTML = html`
+    <div class="task-box">
+      <div>
+        <i class="task-icon bi bi-check-circle-fill"></i>
+      </div>
+      <del>${taskName}</del>
+    </div>
+  `;
+  const complatedTaskList = document.querySelector(".completed-task-list");
+
+  complatedTaskList.prepend(completedTask);
+};
 //move to complated
 const moveToComplated = (newTaskID) => {
   const taskIcon = document.querySelector(".task-icon");
   taskIcon.addEventListener("click", function () {
     const incompletedTaskBox = this.closest(".task-box");
-    const cloneOfInCompletedTaskBox =
-      '<div class="task-box">' + incompletedTaskBox.innerHTML + "</div>";
-
+    const taskName = incompletedTaskBox.querySelector(".task-name").innerText;
     incompletedTaskBox.remove();
-
-    //create Task
-
-    const completedTask = document.createElement("div");
-    completedTask.innerHTML = cloneOfInCompletedTaskBox;
-    const complatedTaskList = document.querySelector(".completed-task-list");
-
-    //change icon
-    const icon = completedTask.querySelector(".task-icon");
-    icon.classList.remove("bi-circle");
-    icon.classList.remove("bi-check-circle");
-    icon.classList.add("bi-check-circle-fill");
-
-    //change inner text to del
-    const taskName = completedTask.querySelector(".task-name").innerText;
-    const del = document.createElement("del");
-
-    del.innerText = taskName;
-    insertAfter(completedTask.querySelector(".task-name"), del);
-
-    completedTask.querySelector(".task-name").remove();
-
-    complatedTaskList.prepend(completedTask);
-
+    createCompleteTask(taskName);
     // save to databse as competed task
     updateToDB(TASK_COLLECTION_NAME, newTaskID, { isComplete: true });
   });
@@ -73,6 +64,8 @@ const createIncompletedTask = (taskName, newTaskID) => {
       this.classList.remove("bi-check-circle");
     });
 
+  console.log(newTaskID);
+
   moveToComplated(newTaskID);
 };
 
@@ -103,8 +96,8 @@ document.querySelector(".new-task").focus();
 const taskList = getDataDB(TASK_COLLECTION_NAME);
 taskList.forEach((task) => {
   if (task.isComplete) {
-    console.log("Completed task found");
+    createCompleteTask(task.name);
   } else {
-    createIncompletedTask(task.name);
+    createIncompletedTask(task.name, task.id);
   }
 });
