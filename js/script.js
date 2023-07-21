@@ -1,9 +1,13 @@
 //TODO: Add functionality in important route so that it adds task as important.
 //TODO: Implement 404 page
 
-import { addToDB, getDataDB } from "./lib/mangeDB.js";
+import { addToDB, getDataDB, updateToDB } from "./lib/mangeDB.js";
 import { v4 as uuidv4 } from "https://jspm.dev/uuid";
-import { createCompleteTask, createIncompletedTask } from "./task/index.js";
+import {
+  createCompleteTask,
+  createIncompletedTask,
+  toggleBookmarkButton,
+} from "./task/index.js";
 import { TASK_COLLECTION_NAME } from "./define.js";
 import executeAccordion from "./accordion.js";
 const html = String.raw;
@@ -39,6 +43,82 @@ const taskElements = html`
 </div>
 `;
 
+const loadRightSidebar = (taskBox) => {
+  taskBox.addEventListener("click", function () {
+    document.querySelector("#task-details").style.display = "block";
+
+    const isAddedToImportant = Array.from(
+      taskBox
+        .querySelector(".task-name")
+        .parentElement.querySelector("[data-role='bookmark']").classList
+    ).includes("bi-star-fill");
+
+    document
+      .querySelector("#task-details [data-role='bookmark']")
+      .classList.add(isAddedToImportant ? "bi-star-fill" : "bi-star");
+    document
+      .querySelector("#task-details [data-role='bookmark']")
+      .classList.remove(!isAddedToImportant ? "bi-star-fill" : "bi-star");
+    document
+      .querySelector("#close-right-sidebar")
+      .addEventListener("click", () => {
+        document.querySelector("#task-details").style.display = "none";
+      });
+    const taskName = taskBox.querySelector(".task-name").innerText;
+    const taskId = taskBox.querySelector("[data-id]").getAttribute("data-id");
+
+    document.querySelector(".edit-task-input").value = taskName;
+    const oldForm = document.querySelector("#edit-task");
+    const editTask = oldForm.cloneNode(true);
+    oldForm.parentNode.replaceChild(editTask, oldForm);
+
+    const oldElement = document.querySelector(
+      "#task-details [data-role='bookmark']"
+    );
+    const newElement = oldElement.cloneNode(true);
+
+    oldElement.parentNode.replaceChild(newElement, oldElement);
+
+    newElement.addEventListener("click", () => {
+      toggleBookmarkButton(taskId, true);
+
+      const isAddedToImportant = Array.from(
+        taskBox
+          .querySelector(".task-name")
+          .parentElement.querySelector("[data-role='bookmark']").classList
+      ).includes("bi-star-fill");
+
+      document
+        .querySelector("#edit-task [data-role='bookmark']")
+        .classList.add(isAddedToImportant ? "bi-star" : "bi-star-fill");
+
+      document
+        .querySelector("#edit-task [data-role='bookmark']")
+        .classList.remove(!isAddedToImportant ? "bi-star" : "bi-star-fill");
+
+      taskBox
+        .querySelector(".task-name")
+        .parentElement.querySelector("[data-role='bookmark']")
+        .classList.add(isAddedToImportant ? "bi-star" : "bi-star-fill");
+
+      taskBox
+        .querySelector(".task-name")
+        .parentElement.querySelector("[data-role='bookmark']")
+        .classList.remove(!isAddedToImportant ? "bi-star" : "bi-star-fill");
+    });
+
+    editTask.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      updateToDB(TASK_COLLECTION_NAME, taskId, {
+        name: document.querySelector(".edit-task-input").value,
+      });
+      taskBox.querySelector(".task-name").innerText =
+        document.querySelector(".edit-task-input").value;
+    });
+  });
+};
+
 // history.pushState("", "", "/myDay");
 const loadInitialScripts = () => {
   document.querySelector("#tasks").innerHTML = taskElements;
@@ -57,7 +137,9 @@ const loadInitialScripts = () => {
       isImportant: false,
     };
 
-    createIncompletedTask(newTaskDetails);
+    const taskBox = createIncompletedTask(newTaskDetails);
+    loadRightSidebar(taskBox);
+
     //save to db
     addToDB(TASK_COLLECTION_NAME, [
       {
@@ -78,9 +160,11 @@ const loadInitialScripts = () => {
   const taskList = getDataDB(TASK_COLLECTION_NAME);
   taskList.forEach((task) => {
     if (task.isComplete) {
-      createCompleteTask(task);
+      const taskBox = createCompleteTask(task);
+      loadRightSidebar(taskBox);
     } else {
-      createIncompletedTask(task);
+      const taskBox = createIncompletedTask(task);
+      loadRightSidebar(taskBox);
     }
   });
 };
@@ -102,7 +186,8 @@ const loadImportant = () => {
       isImportant: true,
     };
 
-    createIncompletedTask(newTaskDetails);
+    const taskBox = createIncompletedTask(newTaskDetails);
+    loadRightSidebar(taskBox);
     //save to db
     addToDB(TASK_COLLECTION_NAME, [
       {
@@ -124,9 +209,11 @@ const loadImportant = () => {
   const importantTasks = taskList.filter((task) => task.isImportant != false);
   importantTasks.forEach((task) => {
     if (task.isComplete) {
-      createCompleteTask(task);
+      const taskBox = createCompleteTask(task);
+      loadRightSidebar(taskBox);
     } else {
-      createIncompletedTask(task);
+      const taskBox = createIncompletedTask(task);
+      loadRightSidebar(taskBox);
     }
   });
 };

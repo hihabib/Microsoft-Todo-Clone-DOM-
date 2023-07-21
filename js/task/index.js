@@ -1,25 +1,36 @@
 import { TASK_COLLECTION_NAME } from "../define.js";
 import { getDataDB, updateToDB } from "../lib/mangeDB.js";
 
-const toggleBookmarkButton = (id) => {
-  const idElement = document.querySelector('[data-id="' + id + '"]');
-  idElement.parentElement
-    .querySelector('[data-role="bookmark"]')
-    .addEventListener("click", function () {
-      const isAddedToImportant = Array.from(this.classList).includes(
-        "bi-star-fill"
-      );
+const toggleBookmarkButton = (id, edit = false) => {
+  if (!edit) {
+    const idElement = document.querySelector('[data-id="' + id + '"]');
+    idElement.parentElement
+      .querySelector('[data-role="bookmark"]')
+      .addEventListener("click", function () {
+        const isAddedToImportant = Array.from(this.classList).includes(
+          "bi-star-fill"
+        );
 
-      updateToDB(TASK_COLLECTION_NAME, id, {
-        isImportant: isAddedToImportant ? false : true,
+        updateToDB(TASK_COLLECTION_NAME, id, {
+          isImportant: isAddedToImportant ? false : true,
+        });
+        this.classList.remove(isAddedToImportant ? "bi-star-fill" : "bi-star");
+        this.classList.add(!isAddedToImportant ? "bi-star-fill" : "bi-star");
+
+        if (location.pathname == "/important") {
+          this.parentElement.remove();
+        }
       });
-      this.classList.remove(isAddedToImportant ? "bi-star-fill" : "bi-star");
-      this.classList.add(!isAddedToImportant ? "bi-star-fill" : "bi-star");
+  } else {
+    const idElement = document.querySelector('[data-id="' + id + '"]');
+    const isAddedToImportant = Array.from(
+      idElement.parentElement.querySelector('[data-role="bookmark"]').classList
+    ).includes("bi-star-fill");
 
-      if (location.pathname == "/important") {
-        this.parentElement.remove();
-      }
+    updateToDB(TASK_COLLECTION_NAME, id, {
+      isImportant: isAddedToImportant ? false : true,
     });
+  }
 };
 
 const createCompleteTask = (taskDetails) => {
@@ -53,6 +64,8 @@ const createCompleteTask = (taskDetails) => {
 
   complatedTaskList.prepend(completedTask);
   toggleBookmarkButton(newTaskID);
+
+  return completedTask.querySelector(".task-box");
 };
 
 //move to complated
@@ -111,6 +124,12 @@ const createIncompletedTask = ({
 
   moveToComplated(newTaskID);
   toggleBookmarkButton(newTaskID);
+  return newTask; // taskBox
 };
 
-export { createCompleteTask, moveToComplated, createIncompletedTask };
+export {
+  createCompleteTask,
+  moveToComplated,
+  createIncompletedTask,
+  toggleBookmarkButton,
+};

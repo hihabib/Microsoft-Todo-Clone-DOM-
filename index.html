@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Todo app</title>
-    <link
-      rel="stylesheet"
-      href="./node_modules/bootstrap-icons/font/bootstrap-icons.min.css"
-    />
-    <link rel="stylesheet" href="./css/accordion.css" />
-    <link rel="stylesheet" href="./css/style.css" />
-  </head>
-  <body>
-    <div class="todo-app">
-      <aside id="sidebar">
-        <div class="sidebar-fixed">
-          <ul>
-            <li id="myDay"><i class="bi bi-brightness-high"></i> <span>My Day</span></li>
-            <li id="important"><i class="bi bi-star"></i> <span>Important</li>
-          </ul>
-        </div>
-      </aside>
-      <div id="tasks">
-        
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo app</title>
+  <link rel="stylesheet" href="./node_modules/bootstrap-icons/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="./css/accordion.css" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body>
+  <div class="todo-app">
+    <aside id="sidebar">
+      <div class="sidebar-fixed">
+        <ul>
+          <li id="myDay"><i class="bi bi-brightness-high"></i> <span>My Day</span></li>
+          <li id="important"><i class="bi bi-star"></i> <span>Important</li>
+        </ul>
       </div>
+    </aside>
+    <div id="tasks">
+
     </div>
+    <aside id="task-details">
+      <form id="edit-task" action="">
+        <div style="gap: 2px; padding: 10px 5px" class="edit-task-box">
+          <div>
+            <i class="bi bi-circle"></i>
+          </div>
+          <input class="edit-task-input" type="text" name="" placeholder="Add a task">
+          
+            <i data-role="bookmark" class="bi bi-star"></i>
+        </div>
+      </form>
+      <div class="right-sidebar-bottom">
+        <button id="close-right-sidebar">&times;</button>
+      </div>
+    </aside>
+  </div>
 
-    <script>
-      window.html = String.raw;
-    </script>
+  <script>
+    window.html = String.raw;
+  </script>
 
-    <script type="module" src="./js/script.js"></script>
-  </body>
+  <script type="module" src="./js/script.js"></script>
+</body>
+
 </html>
