@@ -1,103 +1,155 @@
-import insertAfter from "./lib/insertAfter.js";
-import { addToDB, getDataDB, updateToDB } from "./lib/mangeDB.js";
+//TODO: Add functionality in important route so that it adds task as important.
+//TODO: Implement 404 page
+
+import { addToDB, getDataDB } from "./lib/mangeDB.js";
 import { v4 as uuidv4 } from "https://jspm.dev/uuid";
-
-const TASK_COLLECTION_NAME = "tasks";
-
-//TODO: createCompleteTask so that after page refresh the completed task show inside accordion
-
+import { createCompleteTask, createIncompletedTask } from "./task/index.js";
+import { TASK_COLLECTION_NAME } from "./define.js";
+import executeAccordion from "./accordion.js";
 const html = String.raw;
 
-const createCompleteTask = (taskName) => {
-  //create Task
-  const completedTask = document.createElement("div");
-
-  completedTask.innerHTML = html`
-    <div class="task-box">
-      <div>
-        <i class="task-icon bi bi-check-circle-fill"></i>
-      </div>
-      <del>${taskName}</del>
-    </div>
-  `;
-  const complatedTaskList = document.querySelector(".completed-task-list");
-
-  complatedTaskList.prepend(completedTask);
-};
-//move to complated
-const moveToComplated = (newTaskID) => {
-  const taskIcon = document.querySelector(".task-icon");
-  taskIcon.addEventListener("click", function () {
-    const incompletedTaskBox = this.closest(".task-box");
-    const taskName = incompletedTaskBox.querySelector(".task-name").innerText;
-    incompletedTaskBox.remove();
-    createCompleteTask(taskName);
-    // save to databse as competed task
-    updateToDB(TASK_COLLECTION_NAME, newTaskID, { isComplete: true });
-  });
-};
-
-const createIncompletedTask = (taskName, newTaskID) => {
-  //create new task
-  const newTask = document.createElement("div");
-  newTask.classList.add("task-box");
-  newTask.innerHTML = html`
+const taskElements = html`
+<form id="create-new-task" action="">
+   <div class="task-box">
     <div>
-      <i class="task-icon bi bi-circle"></i>
+      <i class="bi bi-circle"></i>
     </div>
-    <div data-id="${newTaskID}" class="task-name">${taskName}</div>
-  `;
+    <input class="new-task" type="text" name="" placeholder="Add a task" id="" >
+  </div>
+  <div class="form-bottom">
+    <div>
+      <i class="bi bi-calendar-range" ></i>
+      <i class="bi bi-bell" ></i>
+      <i class="bi bi-repeat" ></i>
+    </div>
 
-  const taskList = document.querySelector(".task-list");
-  taskList.prepend(newTask);
-  document
-    .querySelector(".task-icon")
-    .addEventListener("mouseover", function () {
-      this.classList.remove("bi-circle");
-      this.classList.add("bi-check-circle");
-    });
+    <div><button class="submit-form" type="submit">Add</button></div>
+  </div>
+</form>
 
-  document
-    .querySelector(".task-icon")
-    .addEventListener("mouseleave", function () {
-      this.classList.add("bi-circle");
-      this.classList.remove("bi-check-circle");
-    });
+<div class="task-list" ></i>
 
-  console.log(newTaskID);
+<div class="completed-task-accordion">
+  <button class="accordion">
+    <i class="bi bi-chevron-right" ></i> <span>Completed</span>
+  </button>
+  <div class="panel">
+    <div class="completed-task-list" ></div>
+  </div>
+</div>
+`;
 
-  moveToComplated(newTaskID);
-};
+// history.pushState("", "", "/myDay");
+const loadInitialScripts = () => {
+  document.querySelector("#tasks").innerHTML = taskElements;
+  executeAccordion();
 
-const form = document.querySelector("#create-new-task");
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const taskName = document.querySelector(".new-task").value;
+  const form = document.querySelector("#create-new-task");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const taskName = document.querySelector(".new-task").value;
 
-  const newTaskID = uuidv4();
-
-  createIncompletedTask(taskName, newTaskID);
-  //save to db
-  addToDB(TASK_COLLECTION_NAME, [
-    {
+    const newTaskID = uuidv4();
+    const newTaskDetails = {
       id: newTaskID,
       name: taskName,
       isComplete: false,
-    },
-  ]);
+      isImportant: false,
+    };
 
-  document.querySelector(".new-task").value = "";
+    createIncompletedTask(newTaskDetails);
+    //save to db
+    addToDB(TASK_COLLECTION_NAME, [
+      {
+        id: newTaskID,
+        name: taskName,
+        isComplete: false,
+        isImportant: false,
+      },
+    ]);
+
+    document.querySelector(".new-task").value = "";
+  });
+
+  // load initaially
+
+  document.querySelector(".new-task").focus();
+
+  const taskList = getDataDB(TASK_COLLECTION_NAME);
+  taskList.forEach((task) => {
+    if (task.isComplete) {
+      createCompleteTask(task);
+    } else {
+      createIncompletedTask(task);
+    }
+  });
+};
+
+const loadImportant = () => {
+  document.querySelector("#tasks").innerHTML = taskElements;
+  executeAccordion();
+
+  const form = document.querySelector("#create-new-task");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const taskName = document.querySelector(".new-task").value;
+
+    const newTaskID = uuidv4();
+    const newTaskDetails = {
+      id: newTaskID,
+      name: taskName,
+      isComplete: false,
+      isImportant: true,
+    };
+
+    createIncompletedTask(newTaskDetails);
+    //save to db
+    addToDB(TASK_COLLECTION_NAME, [
+      {
+        id: newTaskID,
+        name: taskName,
+        isComplete: false,
+        isImportant: false,
+      },
+    ]);
+
+    document.querySelector(".new-task").value = "";
+  });
+
+  // load initaially
+
+  document.querySelector(".new-task").focus();
+
+  const taskList = getDataDB(TASK_COLLECTION_NAME);
+  const importantTasks = taskList.filter((task) => task.isImportant != false);
+  importantTasks.forEach((task) => {
+    if (task.isComplete) {
+      createCompleteTask(task);
+    } else {
+      createIncompletedTask(task);
+    }
+  });
+};
+
+// routing
+if (
+  location.pathname == "/" ||
+  location.pathname == "/index.html" ||
+  location.pathname == "/myDay"
+) {
+  loadInitialScripts();
+} else if (location.pathname == "/important") {
+  loadImportant();
+} else {
+  console.log("404 Not found");
+}
+
+document.querySelector("#important").addEventListener("click", () => {
+  history.pushState("", "", "/important");
+  loadImportant();
 });
 
-// load initaially
-
-document.querySelector(".new-task").focus();
-
-const taskList = getDataDB(TASK_COLLECTION_NAME);
-taskList.forEach((task) => {
-  if (task.isComplete) {
-    createCompleteTask(task.name);
-  } else {
-    createIncompletedTask(task.name, task.id);
-  }
+document.querySelector("#myDay").addEventListener("click", () => {
+  history.pushState("", "", "/myDay");
+  loadInitialScripts();
 });

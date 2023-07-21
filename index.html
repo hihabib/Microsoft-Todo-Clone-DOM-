@@ -12,44 +12,24 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <div class="container">
-      <form id="create-new-task" action="">
-        <div class="task-box">
-          <div>
-            <i class="bi bi-circle"></i>
-          </div>
-          <input
-            class="new-task"
-            type="text"
-            name=""
-            placeholder="Add a task"
-            id=""
-          />
+    <div class="todo-app">
+      <aside id="sidebar">
+        <div class="sidebar-fixed">
+          <ul>
+            <li id="myDay"><i class="bi bi-brightness-high"></i> <span>My Day</span></li>
+            <li id="important"><i class="bi bi-star"></i> <span>Important</li>
+          </ul>
         </div>
-        <div class="form-bottom">
-          <div>
-            <i class="bi bi-calendar-range"></i>
-            <i class="bi bi-bell"></i>
-            <i class="bi bi-repeat"></i>
-          </div>
-
-          <div><button class="submit-form" type="submit">Add</button></div>
-        </div>
-      </form>
-
-      <div class="task-list"></div>
-
-      <div class="completed-task-accordion">
-        <button class="accordion">
-          <i class="bi bi-chevron-right"></i> <span>Completed</span>
-        </button>
-        <div class="panel">
-          <div class="completed-task-list"></div>
-        </div>
+      </aside>
+      <div id="tasks">
+        
       </div>
     </div>
 
-    <script src="./js/accordion.js"></script>
+    <script>
+      window.html = String.raw;
+    </script>
+
     <script type="module" src="./js/script.js"></script>
   </body>
 </html>

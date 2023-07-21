@@ -39,19 +39,67 @@ form {
   gap: 10px;
   border-radius: 2px;
 }
-.task-list, .completed-task-list {
+.task-list,
+.completed-task-list {
   margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   font-size: 18px;
 }
+.task-name {
+  flex-grow: 1;
+}
 .completed-task-list {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 .completed-task-accordion {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 .task-icon {
-    cursor: pointer;
+  cursor: pointer;
+}
+
+.todo-app {
+  display: flex;
+  padding: 0 15px;
+}
+#sidebar {
+  width: 400px;
+  position: relative;
+}
+.sidebar-fixed {
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  width: inherit;
+}
+#tasks {
+  flex-grow: 1;
+}
+
+#sidebar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  padding-left: 10px;
+}
+
+#sidebar ul li {
+  padding: 15px 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#sidebar ul li:last-child {
+  border-bottom: none;
+}
+
+#sidebar ul li:hover {
+  background-color: #eaeaea;
 }
